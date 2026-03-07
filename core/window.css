@@ -1,0 +1,38 @@
+/* NexOS Windows */
+.nexos-window {
+  position:absolute; min-width:300px; min-height:220px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); box-shadow:var(--shadow-lg);
+  display:flex; flex-direction:column; overflow:hidden;
+  pointer-events:all;
+  animation:win-open var(--t-mid) var(--ease) both;
+  transition:box-shadow var(--t-fast);
+}
+.nexos-window.focused { border-color:var(--mint-border); box-shadow:var(--shadow-mint); }
+.nexos-window.minimized { display:none; }
+@keyframes win-open { from{opacity:0;transform:scale(.95) translateY(10px)} to{opacity:1;transform:none} }
+
+.win-titlebar {
+  display:flex; align-items:center; gap:10px; padding:0 10px;
+  background:var(--surface-2); border-bottom:1px solid var(--border);
+  cursor:grab; flex-shrink:0; height:40px; user-select:none;
+}
+.win-titlebar:active { cursor:grabbing; }
+.win-controls { display:flex; gap:6px; flex-shrink:0; }
+.win-btn { width:13px; height:13px; border-radius:50%; transition:filter var(--t-fast); }
+.win-btn:hover { filter:brightness(1.25); }
+.win-btn.close    { background:#ff5f57; }
+.win-btn.minimize { background:#ffbd2e; }
+.win-btn.maximize { background:#28c840; }
+.win-icon  { font-size:14px; flex-shrink:0; }
+.win-title { flex:1; font-size:13px; font-weight:500; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.nexos-window.focused .win-title { color:var(--text); }
+.win-content { flex:1; overflow:hidden; display:flex; flex-direction:column; }
+.win-resize {
+  position:absolute; bottom:0; right:0; width:18px; height:18px; cursor:nwse-resize; z-index:5;
+}
+.win-resize::after {
+  content:''; position:absolute; bottom:3px; right:3px;
+  width:7px; height:7px;
+  border-right:2px solid var(--text-dim); border-bottom:2px solid var(--text-dim); border-radius:1px;
+}
