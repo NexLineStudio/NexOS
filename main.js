@@ -136,8 +136,3 @@ ipcMain.handle('weather:geocode', (_, city) => {
     }).on('error', e => resolve({ error: e.message }));
   });
 });
-const { autoUpdater } = require("electron-updater");
-
-app.whenReady().then(() => {
-  autoUpdater.checkForUpdatesAndNotify();
-});
