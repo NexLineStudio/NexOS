@@ -23,6 +23,16 @@
 
 ## Installation
 
+### ✅ Méthode recommandée — Exécutable (aucun prérequis)
+
+Télécharge directement le `.exe` depuis les [**Releases GitHub**](../../releases) et lance-le. C'est tout.
+
+> Pas besoin de Node.js, npm, ou quoi que ce soit d'autre.
+
+---
+
+### 🛠️ Méthode manuelle — Depuis les sources
+
 > **Prérequis :** Node.js installé sur ta machine.
 
 ```bash
@@ -37,8 +47,6 @@ npm install
 # 4. Lancer NexOS
 npm start
 ```
-
-Et c'est tout — NexOS s'ouvre dans sa propre fenêtre.
 
 ---
 
