@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>NexOS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="core/style.css"/>
+  <style>
+    :root {
+      --mint:       #3ecf8e;
+      --mint-dark:  #2ab87a;
+      --mint-glow:  rgba(62,207,142,.25);
+      --bg:         #0f1923;
+      --bg-card:    #162030;
+      --bg-card2:   #1c2b3a;
+      --border:     rgba(62,207,142,.18);
+      --text:       #f0f6ff;
+      --text-muted: #7a9ab5;
+      --danger:     #ff5f57;
+      --warn:       #febc2e;
+      --ok:         #28c840;
+      --radius:     18px;
+      --shadow:     0 8px 32px rgba(0,0,0,.45);
+      --font:       'Nunito', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      font-size: 17px;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* BOOT */
+    #boot {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 28px;
+    }
+    .boot-logo {
+      display: flex; align-items: center; gap: 18px;
+      font-size: 2.6rem; font-weight: 900; color: var(--text); letter-spacing: -1px;
+    }
+    .boot-logo svg { width: 60px; height: 60px; }
+    .boot-bar-track {
+      width: 260px; height: 6px;
+      background: var(--bg-card2); border-radius: 99px; overflow: hidden;
+    }
+    .boot-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--mint), var(--mint-dark));
+      border-radius: 99px; width: 0%; transition: width .3s ease;
+    }
+    .boot-msg { color: var(--text-muted); font-size: .95rem; font-weight: 600; }
+
+    /* TITLEBAR */
+    #titlebar {
+      position: fixed; top: 0; left: 0; right: 0; height: 42px;
+      background: rgba(15,25,35,.85);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: flex-end;
+      padding: 0 14px; z-index: 900;
+    }
+    .tb-drag { flex: 1; height: 100%; -webkit-app-region: drag; }
+    #tb-close {
+      width: 28px; height: 28px; border-radius: 50%; border: none;
+      background: var(--danger); color: #fff; font-size: .95rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: transform .15s;
+    }
+    #tb-close:hover { transform: scale(1.15); }
+
+    /* DESKTOP */
+    #desktop {
+      position: fixed; top: 42px; bottom: 74px; left: 0; right: 0;
+      overflow: hidden;
+    }
+    .wallpaper {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 55% 45% at 15% 20%, rgba(62,207,142,.07) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 35% at 85% 80%, rgba(62,207,142,.05) 0%, transparent 60%),
+        var(--bg);
+    }
+
+    /* ICÔNES BUREAU */
+    #desktop-icons {
+      position: absolute; inset: 24px;
+      display: flex; flex-wrap: wrap;
+      align-content: flex-start; gap: 16px; padding: 8px;
+    }
+    .desk-icon {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 10px;
+      width: 108px; padding: 18px 10px 14px;
+      border-radius: var(--radius);
+      border: 1.5px solid transparent;
+      background: var(--bg-card);
+      cursor: pointer;
+      transition: background .15s, border-color .18s, transform .18s;
+      user-select: none;
+      font-family: var(--font);
+    }
+    .desk-icon:hover {
+      background: var(--bg-card2);
+      border-color: var(--border);
+      transform: translateY(-4px);
+    }
+    .desk-icon:active { transform: scale(.96); }
+    .desk-icon .icon-emoji {
+      font-size: 2.4rem; line-height: 1;
+      filter: drop-shadow(0 2px 8px var(--mint-glow));
+    }
+    .desk-icon .icon-label {
+      font-size: .88rem; font-weight: 800;
+      color: var(--text); text-align: center; line-height: 1.3;
+    }
+
+    /* WIN LAYER */
+    #win-layer { position: absolute; inset: 0; pointer-events: none; }
+    #win-layer > * { pointer-events: all; }
+
+    /* TASKBAR */
+    #taskbar {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 74px;
+      background: rgba(15,25,35,.92);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 16px; z-index: 800;
+    }
+    #start-btn {
+      width: 54px; height: 54px; border-radius: 15px; border: none;
+      background: var(--mint); color: #0f1923;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 18px var(--mint-glow);
+      transition: transform .15s, box-shadow .15s; flex-shrink: 0;
+    }
+    #start-btn:hover { transform: scale(1.08); box-shadow: 0 0 28px rgba(62,207,142,.4); }
+    #start-btn svg { width: 26px; height: 26px; }
+    #tb-apps {
+      display: flex; gap: 8px; flex: 1;
+      overflow-x: auto; scrollbar-width: none; align-items: center;
+    }
+    #tb-apps::-webkit-scrollbar { display: none; }
+    #tb-apps .tb-app-btn {
+      height: 48px; padding: 0 16px;
+      border-radius: 12px; border: 1.5px solid var(--border);
+      background: var(--bg-card);
+      font-family: var(--font); font-size: .95rem; font-weight: 700;
+      color: var(--text); cursor: pointer; white-space: nowrap;
+      transition: background .15s, border-color .15s;
+    }
+    #tb-apps .tb-app-btn:hover { background: var(--bg-card2); border-color: var(--mint); }
+    #tb-apps .tb-app-btn.active { background: var(--mint); color: #0f1923; border-color: transparent; }
+    #tb-clock {
+      font-size: 1.05rem; font-weight: 800; color: var(--text);
+      white-space: nowrap; padding: 0 4px; min-width: 75px; text-align: right;
+    }
+
+    /* MENU DÉMARRER */
+    #start-menu {
+      position: fixed; bottom: 84px; left: 16px; width: 240px;
+      background: var(--bg-card); border: 1.5px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 16px; z-index: 850;
+      animation: popUp .18s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes popUp {
+      from { opacity: 0; transform: translateY(12px) scale(.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .sm-title {
+      font-size: 1.1rem; font-weight: 900; color: var(--text);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+    }
+    .sm-title span { font-size: .8rem; font-weight: 600; color: var(--text-muted); }
+    .sm-grid { display: none !important; }
+    #sm-quit {
+      width: 100%; padding: 13px;
+      border: 1.5px solid rgba(255,95,87,.3); border-radius: 12px;
+      background: rgba(255,95,87,.1); color: #ff7b76;
+      font-family: var(--font); font-size: 1rem; font-weight: 800;
+      cursor: pointer; transition: background .15s, border-color .15s;
+    }
+    #sm-quit:hover { background: rgba(255,95,87,.2); border-color: rgba(255,95,87,.5); }
+
+    /* FENÊTRES */
+    .window {
+      position: absolute;
+      background: var(--bg-card); border: 1.5px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      overflow: hidden; min-width: 320px; min-height: 200px;
+      display: flex; flex-direction: column;
+      animation: winAppear .18s cubic-bezier(.34,1.4,.64,1);
+    }
+    @keyframes winAppear {
+      from { opacity: 0; transform: scale(.94) translateY(10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .window-titlebar {
+      display: flex; align-items: center;
+      padding: 12px 14px 10px; gap: 10px;
+      background: var(--bg-card2); border-bottom: 1px solid var(--border);
+      cursor: move; user-select: none;
+    }
+    .window-title { flex: 1; font-weight: 800; font-size: 1rem; color: var(--text); pointer-events: none; }
+
+    .window-body { flex: 1; overflow: auto; padding: 16px; font-size: 1rem; line-height: 1.6; color: var(--text); }
+
+    input, textarea, select {
+      font-family: var(--font); font-size: 1rem;
+      border-radius: 10px; border: 1.5px solid var(--border);
+      background: var(--bg-card2); color: var(--text);
+      padding: 10px 14px; outline: none; transition: border-color .15s;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--mint); }
+    button { font-family: var(--font); font-weight: 700; }
+
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--bg-card2); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    :focus-visible { outline: 2.5px solid var(--mint); outline-offset: 3px; }
+
+    #help-toast {
+      position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+      background: var(--bg-card2); border: 1px solid var(--border);
+      color: var(--text); padding: 10px 22px;
+      border-radius: 99px; font-size: .95rem; font-weight: 700;
+      pointer-events: none; opacity: 0; transition: opacity .25s;
+      z-index: 9000; white-space: nowrap;
+    }
+    #help-toast.show { opacity: 1; }
+
+    @media (max-width: 600px) {
+      #desktop-icons { gap: 12px; }
+      .desk-icon { width: 88px; padding: 14px 8px 11px; }
+      .desk-icon .icon-emoji { font-size: 2rem; }
+    }
+
+    .win-controls{
+  margin-left:auto;
+  display:flex;
+  gap:8px;
+}
+
+.win-controls{
+  margin-left:auto;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.win-btn{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  border:none;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  color:#000;
+  transition:transform .15s, box-shadow .15s;
+}
+
+.win-btn:hover{
+  transform:scale(1.15);
+  box-shadow:0 0 8px rgba(0,0,0,.4);
+}
+
+.win-btn.close{
+  background:var(--danger);
+}
+
+.win-btn.minimize{
+  background:var(--warn);
+}
+
+.win-btn.maximize{
+  background:var(--ok);
+}
+  </style>
+</head>
+<body>
+
+<div id="boot">
+  <div class="boot-logo">
+    <svg width="56" height="56" viewBox="0 0 48 48" fill="none">
+      <rect x="4"  y="4"  width="18" height="18" rx="5" fill="#3ecf8e"/>
+      <rect x="26" y="4"  width="18" height="18" rx="5" fill="#3ecf8e" opacity=".65"/>
+      <rect x="4"  y="26" width="18" height="18" rx="5" fill="#3ecf8e" opacity=".65"/>
+      <rect x="26" y="26" width="18" height="18" rx="5" fill="#3ecf8e" opacity=".35"/>
+    </svg>
+    <span>NexOS</span>
+  </div>
+  <div class="boot-bar-track"><div class="boot-bar-fill" id="boot-bar"></div></div>
+  <p class="boot-msg" id="boot-msg">Démarrage…</p>
+</div>
+
+<div id="os" hidden>
+  <div id="titlebar">
+    <div class="tb-drag"></div>
+    <div class="tb-btns">
+      <button id="tb-close" title="Arrêter NexOS" class="red">⏻</button>
+    </div>
+  </div>
+
+  <div id="desktop">
+    <div class="wallpaper" aria-hidden="true"></div>
+    <div id="desktop-icons"></div>
+    <div id="win-layer"></div>
+
+    <div id="taskbar">
+      <button id="start-btn" title="Menu">
+        <svg width="22" height="22" viewBox="0 0 48 48" fill="none">
+          <rect x="4"  y="4"  width="18" height="18" rx="4" fill="currentColor"/>
+          <rect x="26" y="4"  width="18" height="18" rx="4" fill="currentColor" opacity=".7"/>
+          <rect x="4"  y="26" width="18" height="18" rx="4" fill="currentColor" opacity=".7"/>
+          <rect x="26" y="26" width="18" height="18" rx="4" fill="currentColor" opacity=".4"/>
+        </svg>
+      </button>
+      <div id="tb-apps"></div>
+      <div id="tb-clock"></div>
+    </div>
+
+    <div id="start-menu" hidden>
+      <div class="sm-title">NexOS <span>v0.2</span></div>
+      <div class="sm-grid" id="sm-grid"></div>
+      <button id="sm-quit">⏻ Éteindre NexOS</button>
+    </div>
+  </div>
+</div>
+
+<div id="help-toast"></div>
+
+<script src="core/kernel.js"></script>
+<script src="core/wm.js"></script>
+<script src="core/taskbar.js"></script>
+<script src="apps/navigateur.js"></script>
+<script src="apps/fichiers.js"></script>
+<script src="apps/bloc-notes.js"></script>
+<script src="apps/calculatrice.js"></script>
+<script src="apps/meteo.js"></script>
+<script src="apps/horloge.js"></script>
+<script src="apps/galerie.js"></script>
+<script src="apps/musique.js"></script>
+<script src="apps/calendrier.js"></script>
+<script src="apps/dessin.js"></script>
+<script src="apps/parametres.js"></script>
+<script src="apps/terminal.js"></script>
+<script src="apps/accessibilite.js"></script>
+<script src="core/boot.js"></script>
+
+<script>
+  // Emoji par défaut selon le nom de l'app
+  const EMOJIS = {
+    navigateur:'🌐', fichiers:'📁', 'bloc-notes':'📝', blocnotes:'📝',
+    calculatrice:'🧮', meteo:'☀️', météo:'☀️', horloge:'🕐',
+    galerie:'🖼️', musique:'🎵', calendrier:'📅',
+    dessin:'🎨', parametres:'⚙️', paramètres:'⚙️', terminal:'💻'
+  };
+  function norm(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,''); }
+  function emoji(name){ for(const[k,v] of Object.entries(EMOJIS)) if(norm(k)===norm(name)) return v; return '📦'; }
+
+  // Toast
+  const toast = document.getElementById('help-toast');
+  let tt;
+  function showToast(msg){ clearTimeout(tt); toast.textContent=msg; toast.classList.add('show'); tt=setTimeout(()=>toast.classList.remove('show'),1800); }
+
+  // Cloner sm-grid vers desktop-icons dès que kernel.js le peuple
+  new MutationObserver(()=>{
+    const sg = document.getElementById('sm-grid');
+    const di = document.getElementById('desktop-icons');
+    if(!sg||!di||sg.children.length===0||di.children.length>0) return;
+    Array.from(sg.children).forEach(child=>{
+      const btn = document.createElement('button');
+      btn.className = 'desk-icon';
+      const rawLabel = child.dataset.label || child.textContent.replace(/\p{Emoji}/gu, '').trim();
+      const em = child.dataset.icon || emoji(rawLabel) || '📦';
+      btn.innerHTML = `<span class="icon-emoji">${em}</span><span class="icon-label">${rawLabel}</span>`;
+      btn.addEventListener('click', ()=>{ child.click(); });
+      btn.addEventListener('mouseenter', ()=>showToast('Ouvrir : '+rawLabel));
+      di.appendChild(btn);
+    });
+  }).observe(document.body, { childList:true, subtree:true });
+</script>
+</body>
+</html>

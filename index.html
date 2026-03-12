@@ -5,308 +5,591 @@
   <title>NexOS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="core/style.css"/>
   <style>
-    :root {
-      --mint:       #3ecf8e;
-      --mint-dark:  #2ab87a;
-      --mint-glow:  rgba(62,207,142,.25);
-      --bg:         #0f1923;
-      --bg-card:    #162030;
-      --bg-card2:   #1c2b3a;
-      --border:     rgba(62,207,142,.18);
-      --text:       #f0f6ff;
-      --text-muted: #7a9ab5;
-      --danger:     #ff5f57;
-      --warn:       #febc2e;
-      --ok:         #28c840;
-      --radius:     18px;
-      --shadow:     0 8px 32px rgba(0,0,0,.45);
-      --font:       'Nunito', sans-serif;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: var(--font);
-      font-size: 17px;
-      background: var(--bg);
-      color: var(--text);
-      overflow: hidden;
-      height: 100vh;
-    }
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+:root {
+  --mint:         #3ecf8e;
+  --mint-dark:    #2ab87a;
+  --mint-light:   #a8f0cf;
+  --mint-soft:    rgba(62,207,142,.12);
+  --mint-glow:    rgba(62,207,142,.28);
 
-    /* BOOT */
-    #boot {
-      position: fixed; inset: 0; z-index: 9999;
-      background: var(--bg);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 28px;
-    }
-    .boot-logo {
-      display: flex; align-items: center; gap: 18px;
-      font-size: 2.6rem; font-weight: 900; color: var(--text); letter-spacing: -1px;
-    }
-    .boot-logo svg { width: 60px; height: 60px; }
-    .boot-bar-track {
-      width: 260px; height: 6px;
-      background: var(--bg-card2); border-radius: 99px; overflow: hidden;
-    }
-    .boot-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--mint), var(--mint-dark));
-      border-radius: 99px; width: 0%; transition: width .3s ease;
-    }
-    .boot-msg { color: var(--text-muted); font-size: .95rem; font-weight: 600; }
+  --cream:        #f5f0e8;
+  --cream-dark:   #ede7da;
+  --cream-darker: #e2dace;
 
-    /* TITLEBAR */
-    #titlebar {
-      position: fixed; top: 0; left: 0; right: 0; height: 42px;
-      background: rgba(15,25,35,.85);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: flex-end;
-      padding: 0 14px; z-index: 900;
-    }
-    .tb-drag { flex: 1; height: 100%; -webkit-app-region: drag; }
-    #tb-close {
-      width: 28px; height: 28px; border-radius: 50%; border: none;
-      background: var(--danger); color: #fff; font-size: .95rem;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: transform .15s;
-    }
-    #tb-close:hover { transform: scale(1.15); }
+  --surface:      #ffffff;
+  --surface2:     #faf8f4;
 
-    /* DESKTOP */
-    #desktop {
-      position: fixed; top: 42px; bottom: 74px; left: 0; right: 0;
-      overflow: hidden;
-    }
-    .wallpaper {
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(ellipse 55% 45% at 15% 20%, rgba(62,207,142,.07) 0%, transparent 65%),
-        radial-gradient(ellipse 40% 35% at 85% 80%, rgba(62,207,142,.05) 0%, transparent 60%),
-        var(--bg);
-    }
+  --text:         #1a1a2e;
+  --text-mid:     #4a4a6a;
+  --text-muted:   #9090aa;
 
-    /* ICÔNES BUREAU */
-    #desktop-icons {
-      position: absolute; inset: 24px;
-      display: flex; flex-wrap: wrap;
-      align-content: flex-start; gap: 16px; padding: 8px;
-    }
-    .desk-icon {
-      display: flex; flex-direction: column;
-      align-items: center; gap: 10px;
-      width: 108px; padding: 18px 10px 14px;
-      border-radius: var(--radius);
-      border: 1.5px solid transparent;
-      background: var(--bg-card);
-      cursor: pointer;
-      transition: background .15s, border-color .18s, transform .18s;
-      user-select: none;
-      font-family: var(--font);
-    }
-    .desk-icon:hover {
-      background: var(--bg-card2);
-      border-color: var(--border);
-      transform: translateY(-4px);
-    }
-    .desk-icon:active { transform: scale(.96); }
-    .desk-icon .icon-emoji {
-      font-size: 2.4rem; line-height: 1;
-      filter: drop-shadow(0 2px 8px var(--mint-glow));
-    }
-    .desk-icon .icon-label {
-      font-size: .88rem; font-weight: 800;
-      color: var(--text); text-align: center; line-height: 1.3;
-    }
+  --border:       rgba(0,0,0,.07);
+  --border-hi:    rgba(62,207,142,.35);
 
-    /* WIN LAYER */
-    #win-layer { position: absolute; inset: 0; pointer-events: none; }
-    #win-layer > * { pointer-events: all; }
+  --danger:       #ff5f57;
+  --warn:         #febc2e;
+  --ok:           #28c840;
 
-    /* TASKBAR */
-    #taskbar {
-      position: fixed; bottom: 0; left: 0; right: 0; height: 74px;
-      background: rgba(15,25,35,.92);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid var(--border);
-      display: flex; align-items: center; gap: 10px;
-      padding: 0 16px; z-index: 800;
-    }
-    #start-btn {
-      width: 54px; height: 54px; border-radius: 15px; border: none;
-      background: var(--mint); color: #0f1923;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 18px var(--mint-glow);
-      transition: transform .15s, box-shadow .15s; flex-shrink: 0;
-    }
-    #start-btn:hover { transform: scale(1.08); box-shadow: 0 0 28px rgba(62,207,142,.4); }
-    #start-btn svg { width: 26px; height: 26px; }
-    #tb-apps {
-      display: flex; gap: 8px; flex: 1;
-      overflow-x: auto; scrollbar-width: none; align-items: center;
-    }
-    #tb-apps::-webkit-scrollbar { display: none; }
-    #tb-apps .tb-app-btn {
-      height: 48px; padding: 0 16px;
-      border-radius: 12px; border: 1.5px solid var(--border);
-      background: var(--bg-card);
-      font-family: var(--font); font-size: .95rem; font-weight: 700;
-      color: var(--text); cursor: pointer; white-space: nowrap;
-      transition: background .15s, border-color .15s;
-    }
-    #tb-apps .tb-app-btn:hover { background: var(--bg-card2); border-color: var(--mint); }
-    #tb-apps .tb-app-btn.active { background: var(--mint); color: #0f1923; border-color: transparent; }
-    #tb-clock {
-      font-size: 1.05rem; font-weight: 800; color: var(--text);
-      white-space: nowrap; padding: 0 4px; min-width: 75px; text-align: right;
-    }
+  --radius:       26px;
+  --radius-sm:    16px;
+  --shadow:       0 4px 24px rgba(0,0,0,.09), 0 1px 4px rgba(0,0,0,.06);
+  --shadow-lg:    0 16px 56px rgba(0,0,0,.13), 0 2px 8px rgba(0,0,0,.07);
+  --shadow-xl:    0 24px 80px rgba(0,0,0,.18), 0 4px 16px rgba(0,0,0,.09);
+  --font:         'Nunito', sans-serif;
+  --mono:         'DM Mono', monospace;
+}
 
-    /* MENU DÉMARRER */
-    #start-menu {
-      position: fixed; bottom: 84px; left: 16px; width: 240px;
-      background: var(--bg-card); border: 1.5px solid var(--border);
-      border-radius: var(--radius); box-shadow: var(--shadow);
-      padding: 16px; z-index: 850;
-      animation: popUp .18s cubic-bezier(.34,1.56,.64,1);
-    }
-    @keyframes popUp {
-      from { opacity: 0; transform: translateY(12px) scale(.96); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .sm-title {
-      font-size: 1.1rem; font-weight: 900; color: var(--text);
-      margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
-    }
-    .sm-title span { font-size: .8rem; font-weight: 600; color: var(--text-muted); }
-    .sm-grid { display: none !important; }
-    #sm-quit {
-      width: 100%; padding: 13px;
-      border: 1.5px solid rgba(255,95,87,.3); border-radius: 12px;
-      background: rgba(255,95,87,.1); color: #ff7b76;
-      font-family: var(--font); font-size: 1rem; font-weight: 800;
-      cursor: pointer; transition: background .15s, border-color .15s;
-    }
-    #sm-quit:hover { background: rgba(255,95,87,.2); border-color: rgba(255,95,87,.5); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* FENÊTRES */
-    .window {
-      position: absolute;
-      background: var(--bg-card); border: 1.5px solid var(--border);
-      border-radius: var(--radius); box-shadow: var(--shadow);
-      overflow: hidden; min-width: 320px; min-height: 200px;
-      display: flex; flex-direction: column;
-      animation: winAppear .18s cubic-bezier(.34,1.4,.64,1);
-    }
-    @keyframes winAppear {
-      from { opacity: 0; transform: scale(.94) translateY(10px); }
-      to   { opacity: 1; transform: scale(1) translateY(0); }
-    }
-    .window-titlebar {
-      display: flex; align-items: center;
-      padding: 12px 14px 10px; gap: 10px;
-      background: var(--bg-card2); border-bottom: 1px solid var(--border);
-      cursor: move; user-select: none;
-    }
-    .window-title { flex: 1; font-weight: 800; font-size: 1rem; color: var(--text); pointer-events: none; }
-    .win-btn {
-      width: 30px; height: 30px; border-radius: 9px; border: none;
-      font-size: 1rem; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; transition: transform .12s;
-    }
-    .win-btn:hover { transform: scale(1.12); }
-    .win-btn.close { background: var(--danger); color: #fff; }
-    .win-btn.min   { background: var(--warn); color: #fff; }
-    .win-btn.max   { background: var(--ok); color: #fff; }
-    .window-body { flex: 1; overflow: auto; padding: 16px; font-size: 1rem; line-height: 1.6; color: var(--text); }
+body {
+  font-family: var(--font);
+  background: var(--cream);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
 
-    input, textarea, select {
-      font-family: var(--font); font-size: 1rem;
-      border-radius: 10px; border: 1.5px solid var(--border);
-      background: var(--bg-card2); color: var(--text);
-      padding: 10px 14px; outline: none; transition: border-color .15s;
-    }
-    input:focus, textarea:focus, select:focus { border-color: var(--mint); }
-    button { font-family: var(--font); font-weight: 700; }
+/* ═══════════════════════════════════════
+   BOOT
+═══════════════════════════════════════ */
+#boot {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--cream);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 40px;
+}
+#boot::before {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 60% at 30% 40%, rgba(62,207,142,.11) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 50% at 75% 70%, rgba(79,156,249,.07) 0%, transparent 60%);
+}
+.boot-logo {
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  animation: bootIn .7s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes bootIn {
+  from { opacity: 0; transform: scale(.85) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.boot-logo-img {
+  width: 92px; height: 92px; border-radius: 26px;
+  box-shadow: 0 8px 40px rgba(62,207,142,.28), 0 2px 12px rgba(0,0,0,.09);
+  object-fit: contain;
+}
+.boot-wordmark {
+  font-size: 3rem; font-weight: 900; letter-spacing: -2px; color: var(--text);
+}
+.boot-wordmark em { font-style: normal; color: var(--mint-dark); }
+.boot-tagline {
+  font-size: 1rem; font-weight: 700; color: var(--text-muted);
+  text-align: center; margin-top: -12px; letter-spacing: .01em;
+}
+.boot-bar-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  animation: bootIn .7s .18s cubic-bezier(.34,1.56,.64,1) both;
+}
+.boot-bar-track {
+  width: 220px; height: 4px;
+  background: var(--cream-darker); border-radius: 99px; overflow: hidden;
+}
+.boot-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--mint-dark), var(--mint), #6edfa8);
+  background-size: 200%;
+  border-radius: 99px; width: 0%;
+  transition: width .35s cubic-bezier(.4,0,.2,1);
+  animation: barShimmer 1.6s linear infinite;
+}
+@keyframes barShimmer {
+  from { background-position: 200%; }
+  to   { background-position: -200%; }
+}
+.boot-msg { font-size: .88rem; font-weight: 700; color: var(--text-muted); }
 
-    ::-webkit-scrollbar { width: 7px; height: 7px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--bg-card2); border-radius: 99px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-    :focus-visible { outline: 2.5px solid var(--mint); outline-offset: 3px; }
+/* ═══════════════════════════════════════
+   DESKTOP — plein écran, sans barres
+═══════════════════════════════════════ */
+#desktop {
+  position: fixed; inset: 0;
+  overflow: hidden;
+}
 
-    #help-toast {
-      position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
-      background: var(--bg-card2); border: 1px solid var(--border);
-      color: var(--text); padding: 10px 22px;
-      border-radius: 99px; font-size: .95rem; font-weight: 700;
-      pointer-events: none; opacity: 0; transition: opacity .25s;
-      z-index: 9000; white-space: nowrap;
-    }
-    #help-toast.show { opacity: 1; }
+.wallpaper {
+  position: absolute; inset: 0;
+  background: var(--cream);
+  /* Drag Electron sur le fond vide uniquement */
+  -webkit-app-region: drag;
+  pointer-events: none;
+}
+.wallpaper::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 12% 18%, rgba(62,207,142,.09) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 90% 82%, rgba(79,156,249,.07) 0%, transparent 55%),
+    radial-gradient(ellipse 35% 30% at 58% 48%, rgba(254,188,46,.05) 0%, transparent 55%);
+}
+.wallpaper::after {
+  content: ''; position: absolute;
+  width: 600px; height: 600px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(62,207,142,.04) 0%, transparent 70%);
+  bottom: -200px; right: -150px; pointer-events: none;
+}
 
-    @media (max-width: 600px) {
-      #desktop-icons { gap: 12px; }
-      .desk-icon { width: 88px; padding: 14px 8px 11px; }
-      .desk-icon .icon-emoji { font-size: 2rem; }
-    }
+/* ═══════════════════════════════════════
+   ICÔNES BUREAU
+═══════════════════════════════════════ */
+#desktop-icons {
+  position: absolute; inset: 24px;
+  padding-top: 60px;
+  padding-bottom: 110px;
+  display: flex; flex-wrap: wrap;
+  align-content: flex-start; gap: 18px;
+  z-index: 2;
+  overflow: visible;
+}
+
+.desk-icon {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 9px; width: 96px;
+  cursor: pointer; background: none; border: none;
+  user-select: none; font-family: var(--font);
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  animation: iconIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes iconIn {
+  from { opacity: 0; transform: scale(.7) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.desk-icon .icon-tile {
+  width: 76px; height: 76px; border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,.13), 0 1px 4px rgba(0,0,0,.08),
+              inset 0 1px 0 rgba(255,255,255,.5);
+  transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s;
+  background: linear-gradient(145deg, #a8f0cf, #3ecf8e);
+}
+/* Reflet iOS — au dessus de l'image */
+.desk-icon .icon-tile::after {
+  content: ''; pointer-events: none;
+  position: absolute; top: 0; left: 0; right: 0; height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,.32) 0%, transparent 100%);
+  border-radius: 22px 22px 50% 50%;
+  z-index: 2;
+}
+.desk-icon .icon-tile img {
+  width: 48px; height: 48px; object-fit: contain;
+  position: relative; z-index: 1;
+  /* Correction bug : SVG fond blanc masqué grâce à mix-blend-mode */
+  display: block;
+}
+
+.desk-icon:hover .icon-tile {
+  transform: scale(1.12) translateY(-5px);
+  box-shadow: 0 14px 36px rgba(0,0,0,.18), 0 3px 8px rgba(0,0,0,.10),
+              inset 0 1px 0 rgba(255,255,255,.55);
+}
+.desk-icon:active .icon-tile { transform: scale(.91); transition-duration: .07s; }
+
+.desk-icon .icon-label {
+  font-size: .84rem; font-weight: 800; color: var(--text);
+  text-align: center; line-height: 1.2; letter-spacing: .01em;
+  text-shadow: 0 1px 4px rgba(255,255,255,.9);
+  max-width: 96px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Snackbar */
+.desk-icon .icon-snack {
+  position: absolute; bottom: calc(100% + 12px); left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  background: var(--text); color: #fff;
+  font-size: .76rem; font-weight: 700;
+  padding: 7px 12px; border-radius: 10px;
+  white-space: nowrap; pointer-events: none;
+  opacity: 0; transition: opacity .16s, transform .16s;
+  z-index: 9800; box-shadow: 0 4px 16px rgba(0,0,0,.22);
+}
+.desk-icon .icon-snack::after {
+  content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: var(--text);
+}
+.desk-icon:hover .icon-snack { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ═══════════════════════════════════════
+   WIN LAYER
+═══════════════════════════════════════ */
+#win-layer {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 10;
+}
+#win-layer > * { pointer-events: all; }
+
+/* ═══════════════════════════════════════
+   WIDGET HORLOGE — coin bas gauche
+═══════════════════════════════════════ */
+#widget-clock {
+  position: fixed; bottom: 24px; left: 24px;
+  background: rgba(255,255,255,.82);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(0,0,0,.07);
+  border-radius: 22px;
+  padding: 16px 22px;
+  box-shadow: var(--shadow-lg);
+  z-index: 500;
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 130px;
+  cursor: default;
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+  -webkit-app-region: no-drag;
+}
+#widget-clock:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: var(--shadow-xl);
+}
+#widget-time {
+  font-size: 2rem; font-weight: 900; letter-spacing: -1.5px;
+  color: var(--text); line-height: 1;
+}
+#widget-time .colon {
+  animation: colonBlink 1s step-end infinite;
+  display: inline-block;
+}
+@keyframes colonBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .25; }
+}
+#widget-date {
+  font-size: .78rem; font-weight: 700; color: var(--text-muted);
+  letter-spacing: .02em; text-transform: capitalize;
+}
+
+/* ═══════════════════════════════════════
+   WIDGET POWER — coin bas droite
+═══════════════════════════════════════ */
+#power-btn {
+  position: fixed; bottom: 24px; right: 24px;
+  width: 54px; height: 54px; border-radius: 18px; border: none;
+  background: rgba(255,255,255,.82);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(0,0,0,.07);
+  color: var(--text-muted); font-size: 1.4rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-lg);
+  transition: all .2s cubic-bezier(.34,1.56,.64,1);
+  z-index: 500;
+  -webkit-app-region: no-drag;
+}
+#power-btn:hover {
+  background: #fff0ee; color: #c0392b;
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 12px 32px rgba(255,95,87,.22);
+  border-color: rgba(255,95,87,.15);
+}
+#power-btn:active { transform: scale(.92); }
+
+/* Menu power */
+#power-menu {
+  position: fixed; bottom: 90px; right: 24px;
+  background: rgba(255,255,255,.96);
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 20px;
+  box-shadow: var(--shadow-xl);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 10px; z-index: 9500; width: 230px;
+  animation: popUpRight .22s cubic-bezier(.34,1.56,.64,1);
+  -webkit-app-region: no-drag;
+}
+@keyframes popUpRight {
+  from { opacity: 0; transform: translateY(12px) scale(.93); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.power-menu-item {
+  width: 100%; padding: 12px 14px;
+  border: none; border-radius: 12px;
+  background: transparent; cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--font); font-weight: 800;
+  color: var(--text); text-align: left;
+  transition: background .12s, transform .12s, color .12s;
+  margin-bottom: 2px;
+}
+.power-menu-item:last-child { margin-bottom: 0; }
+.power-menu-item:hover { transform: translateX(2px); }
+.power-menu-item.shutdown:hover { background: #fff0ee; color: #c0392b; }
+.power-menu-item.restart:hover  { background: #fff8e8; color: #b8700b; }
+.power-menu-item.lock:hover     { background: #eef5ff; color: #2563eb; }
+.power-menu-item .pm-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.power-menu-item.shutdown .pm-icon { background: #ffe0de; }
+.power-menu-item.restart .pm-icon  { background: #fff3cc; }
+.power-menu-item.lock .pm-icon     { background: #dbeafe; }
+.power-menu-item .pm-text { display: flex; flex-direction: column; gap: 1px; }
+.power-menu-item .pm-title { font-size: .92rem; font-weight: 900; }
+.power-menu-item .pm-sub   { font-size: .7rem; font-weight: 600; color: var(--text-muted); }
+.power-menu-sep { height: 1px; background: var(--border); margin: 6px 0; }
+
+/* ═══════════════════════════════════════
+   TASKBAR FANTÔME — apps ouvertes seulement
+   (flottant centré en bas, invisible si vide)
+═══════════════════════════════════════ */
+#tb-apps-dock {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 8px; align-items: center;
+  background: rgba(255,255,255,.78);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(0,0,0,.07);
+  border-radius: 20px; padding: 8px 12px;
+  box-shadow: var(--shadow-lg);
+  z-index: 500;
+  transition: opacity .2s, transform .2s;
+  -webkit-app-region: no-drag;
+  /* Caché si vide */
+  pointer-events: none; opacity: 0;
+}
+#tb-apps-dock.has-apps { pointer-events: all; opacity: 1; }
+#tb-apps-dock .tb-app-btn {
+  height: 44px; padding: 0 14px;
+  border-radius: 12px; border: none;
+  background: transparent;
+  font-family: var(--font); font-size: .88rem; font-weight: 800;
+  color: var(--text-mid); cursor: pointer; white-space: nowrap;
+  transition: all .15s;
+  display: flex; align-items: center; gap: 7px;
+}
+#tb-apps-dock .tb-app-btn:hover {
+  background: rgba(62,207,142,.12);
+  color: var(--mint-dark);
+  transform: translateY(-2px);
+}
+#tb-apps-dock .tb-app-btn.active {
+  background: var(--mint);
+  color: #fff;
+  box-shadow: 0 3px 12px var(--mint-glow);
+}
+/* Indicateur point sous app active */
+#tb-apps-dock .tb-app-btn.active::after {
+  content: '';
+  position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--mint-dark);
+}
+/* Éléments cachés mais requis par kernel.js */
+#taskbar, #tb-apps, #tb-clock { display: none !important; }
+.sm-grid { display: none !important; }
+
+/* ═══════════════════════════════════════
+   FENÊTRES
+═══════════════════════════════════════ */
+.window {
+  position: absolute;
+  background: var(--surface);
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 20px;
+  box-shadow: var(--shadow-xl);
+  overflow: hidden; min-width: 360px; min-height: 240px;
+  display: flex; flex-direction: column;
+  animation: winIn .22s cubic-bezier(.34,1.4,.64,1);
+  transition: box-shadow .2s;
+}
+.window:focus-within {
+  box-shadow: var(--shadow-xl), 0 0 0 2px rgba(62,207,142,.18);
+}
+@keyframes winIn {
+  from { opacity: 0; transform: scale(.91) translateY(14px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.window-titlebar {
+  display: flex; align-items: center;
+  padding: 12px 14px; gap: 10px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  cursor: move; user-select: none; flex-shrink: 0;
+}
+.window-title {
+  flex: 1; font-weight: 800; font-size: .97rem;
+  color: var(--text); pointer-events: none; letter-spacing: .01em;
+  /* Tronquer les titres longs */
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.win-controls {
+  display: flex; align-items: center; gap: 7px; margin-left: auto; flex-shrink: 0;
+}
+.win-btn {
+  height: 28px; padding: 0 10px; border-radius: 99px; border: none;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-family: var(--font); font-size: .75rem; font-weight: 900;
+  letter-spacing: .01em; white-space: nowrap;
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), filter .12s;
+}
+.win-btn:hover { transform: scale(1.07) translateY(-1px); filter: brightness(1.07); }
+.win-btn:active { transform: scale(.93); }
+.win-btn.close    { background: #ffe0de; color: #c0392b; }
+.win-btn.minimize { background: #fff3cc; color: #b8700b; }
+.win-btn.maximize { background: #d6f5df; color: #1a7a35; }
+.win-btn.close::before    { content: '✕'; }
+.win-btn.minimize::before { content: '—'; }
+.win-btn.maximize::before { content: '⤢'; }
+
+.window-body {
+  flex: 1; overflow: auto; padding: 18px;
+  font-size: 1rem; line-height: 1.65; color: var(--text);
+}
+
+/* ═══════════════════════════════════════
+   INPUTS
+═══════════════════════════════════════ */
+input, textarea, select {
+  font-family: var(--font); font-size: 1rem;
+  border-radius: 12px; border: 1.5px solid var(--border);
+  background: var(--surface2); color: var(--text);
+  padding: 10px 14px; outline: none;
+  transition: border-color .15s, box-shadow .15s; width: 100%;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--mint);
+  box-shadow: 0 0 0 3px var(--mint-soft);
+}
+button { font-family: var(--font); font-weight: 800; }
+
+/* ═══════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--cream-darker); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(62,207,142,.4); }
+:focus-visible { outline: 2.5px solid var(--mint); outline-offset: 3px; }
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+#help-toast {
+  position: fixed; bottom: 90px; left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: var(--text); color: #fff;
+  padding: 9px 20px; border-radius: 99px;
+  font-size: .86rem; font-weight: 800;
+  pointer-events: none; opacity: 0;
+  transition: opacity .2s, transform .2s;
+  z-index: 9900; white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,.22);
+  letter-spacing: .01em;
+}
+#help-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 600px) {
+  #desktop-icons { gap: 12px; inset: 14px; padding-bottom: 90px; }
+  .desk-icon { width: 82px; }
+  .desk-icon .icon-tile { width: 64px; height: 64px; border-radius: 18px; }
+  #widget-clock { padding: 12px 16px; }
+  #widget-time { font-size: 1.6rem; }
+}
   </style>
 </head>
 <body>
 
+<!-- ══════════ BOOT ══════════ -->
 <div id="boot">
   <div class="boot-logo">
-    <svg width="56" height="56" viewBox="0 0 48 48" fill="none">
-      <rect x="4"  y="4"  width="18" height="18" rx="5" fill="#3ecf8e"/>
-      <rect x="26" y="4"  width="18" height="18" rx="5" fill="#3ecf8e" opacity=".65"/>
-      <rect x="4"  y="26" width="18" height="18" rx="5" fill="#3ecf8e" opacity=".65"/>
-      <rect x="26" y="26" width="18" height="18" rx="5" fill="#3ecf8e" opacity=".35"/>
-    </svg>
-    <span>NexOS</span>
+    <img class="boot-logo-img" src="assets/logo.jpg" alt="NexOS"/>
+    <div class="boot-wordmark">Nex<em>OS</em></div>
+    <p class="boot-tagline">Simple. Pour tout le monde. 🌿</p>
   </div>
-  <div class="boot-bar-track"><div class="boot-bar-fill" id="boot-bar"></div></div>
-  <p class="boot-msg" id="boot-msg">Démarrage…</p>
+  <div class="boot-bar-wrap">
+    <div class="boot-bar-track">
+      <div class="boot-bar-fill" id="boot-bar"></div>
+    </div>
+    <p class="boot-msg" id="boot-msg">Démarrage…</p>
+  </div>
 </div>
 
+<!-- ══════════ OS ══════════ -->
 <div id="os" hidden>
-  <div id="titlebar">
-    <div class="tb-drag"></div>
-    <div class="tb-btns">
-      <button id="tb-close" title="Arrêter NexOS" class="red">⏻</button>
-    </div>
-  </div>
 
   <div id="desktop">
     <div class="wallpaper" aria-hidden="true"></div>
     <div id="desktop-icons"></div>
     <div id="win-layer"></div>
-
-    <div id="taskbar">
-      <button id="start-btn" title="Menu">
-        <svg width="22" height="22" viewBox="0 0 48 48" fill="none">
-          <rect x="4"  y="4"  width="18" height="18" rx="4" fill="currentColor"/>
-          <rect x="26" y="4"  width="18" height="18" rx="4" fill="currentColor" opacity=".7"/>
-          <rect x="4"  y="26" width="18" height="18" rx="4" fill="currentColor" opacity=".7"/>
-          <rect x="26" y="26" width="18" height="18" rx="4" fill="currentColor" opacity=".4"/>
-        </svg>
-      </button>
-      <div id="tb-apps"></div>
-      <div id="tb-clock"></div>
-    </div>
-
-    <div id="start-menu" hidden>
-      <div class="sm-title">NexOS <span>v0.2</span></div>
-      <div class="sm-grid" id="sm-grid"></div>
-      <button id="sm-quit">⏻ Éteindre NexOS</button>
-    </div>
   </div>
+
+  <!-- Widget horloge bas gauche -->
+  <div id="widget-clock" aria-live="polite">
+    <div id="widget-time">
+      <span id="wt-h">--</span><span class="colon">:</span><span id="wt-m">--</span>
+    </div>
+    <div id="widget-date"></div>
+  </div>
+
+  <!-- Dock apps ouvertes — centré en bas -->
+  <div id="tb-apps-dock"></div>
+
+  <!-- Bouton power bas droite -->
+  <button id="power-btn" title="Éteindre / Redémarrer / Verrouiller" aria-label="Menu d'alimentation">
+    ⏻
+  </button>
+
+  <!-- Menu power -->
+  <div id="power-menu" hidden role="menu">
+    <button class="power-menu-item shutdown" id="pm-shutdown" role="menuitem">
+      <div class="pm-icon">⏻</div>
+      <div class="pm-text">
+        <span class="pm-title">Éteindre</span>
+        <span class="pm-sub">Fermer NexOS</span>
+      </div>
+    </button>
+    <button class="power-menu-item restart" id="pm-restart" role="menuitem">
+      <div class="pm-icon">↺</div>
+      <div class="pm-text">
+        <span class="pm-title">Redémarrer</span>
+        <span class="pm-sub">Relancer NexOS</span>
+      </div>
+    </button>
+    <div class="power-menu-sep" role="separator"></div>
+    <button class="power-menu-item lock" id="pm-lock" role="menuitem">
+      <div class="pm-icon">🔒</div>
+      <div class="pm-text">
+        <span class="pm-title">Verrouiller</span>
+        <span class="pm-sub">Mettre en veille</span>
+      </div>
+    </button>
+  </div>
+
+  <!-- Éléments fantômes requis par kernel.js / taskbar.js -->
+  <div id="taskbar" aria-hidden="true">
+    <div id="tb-apps"></div>
+    <div id="tb-clock"></div>
+  </div>
+  <div id="start-menu" hidden aria-hidden="true">
+    <div class="sm-grid" id="sm-grid"></div>
+    <button id="sm-quit" style="display:none"></button>
+  </div>
+
 </div>
 
-<div id="help-toast"></div>
+<div id="help-toast" role="status"></div>
 
+<!-- ══════════ SCRIPTS ══════════ -->
 <script src="core/kernel.js"></script>
 <script src="core/wm.js"></script>
 <script src="core/taskbar.js"></script>
@@ -326,37 +609,172 @@
 <script src="core/boot.js"></script>
 
 <script>
-  // Emoji par défaut selon le nom de l'app
-  const EMOJIS = {
-    navigateur:'🌐', fichiers:'📁', 'bloc-notes':'📝', blocnotes:'📝',
-    calculatrice:'🧮', meteo:'☀️', météo:'☀️', horloge:'🕐',
-    galerie:'🖼️', musique:'🎵', calendrier:'📅',
-    dessin:'🎨', parametres:'⚙️', paramètres:'⚙️', terminal:'💻'
-  };
-  function norm(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,''); }
-  function emoji(name){ for(const[k,v] of Object.entries(EMOJIS)) if(norm(k)===norm(name)) return v; return '📦'; }
+/* ═══════════════════════════════════════
+   CONFIG APPS
+═══════════════════════════════════════ */
+const APP_CONFIG = {
+  navigateur:    { color: ['#6ab4fc','#3a8ef5'], desc: 'Aller sur Internet',      svg: 'navigateur' },
+  fichiers:      { color: ['#ffd67a','#f0a500'], desc: 'Mes documents et photos', svg: 'fichiers' },
+  'bloc-notes':  { color: ['#ffcc80','#ef8c00'], desc: 'Écrire une note rapide',  svg: 'bloc-notes' },
+  blocnotes:     { color: ['#ffcc80','#ef8c00'], desc: 'Écrire une note rapide',  svg: 'bloc-notes' },
+  calculatrice:  { color: ['#c8b8fe','#8b6cf7'], desc: 'Faire un calcul',         svg: 'calculatrice' },
+  meteo:         { color: ['#b3d9ff','#4fa3e8'], desc: 'Voir la météo du jour',   svg: 'meteo' },
+  météo:         { color: ['#b3d9ff','#4fa3e8'], desc: 'Voir la météo du jour',   svg: 'meteo' },
+  horloge:       { color: ['#ffcce4','#f0609a'], desc: 'Heure, alarme, minuteur', svg: 'horloge' },
+  galerie:       { color: ['#b8a8fc','#6040d4'], desc: 'Voir mes photos',         svg: 'galerie' },
+  musique:       { color: ['#ffb39a','#d45030'], desc: 'Écouter de la musique',   svg: 'musique' },
+  calendrier:    { color: ['#66e8be','#00a878'], desc: 'Mes rendez-vous',         svg: 'calendrier' },
+  dessin:        { color: ['#ff99cc','#cc1177'], desc: 'Dessiner librement',      svg: 'dessin' },
+  parametres:    { color: ['#c0cad4','#607080'], desc: 'Régler NexOS',            svg: 'parametres' },
+  paramètres:    { color: ['#c0cad4','#607080'], desc: 'Régler NexOS',            svg: 'parametres' },
+  terminal:      { color: ['#7090a8','#1e2c3a'], desc: 'Console avancée',         svg: 'terminal' },
+  accessibilite: { color: ['#80f0ec','#00b0aa'], desc: "Adapter l'affichage",     svg: 'accessibilite' },
+  accessibilité: { color: ['#80f0ec','#00b0aa'], desc: "Adapter l'affichage",     svg: 'accessibilite' },
+};
 
-  // Toast
-  const toast = document.getElementById('help-toast');
-  let tt;
-  function showToast(msg){ clearTimeout(tt); toast.textContent=msg; toast.classList.add('show'); tt=setTimeout(()=>toast.classList.remove('show'),1800); }
+function norm(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,''); }
+function getConfig(name){
+  const k = norm(name);
+  for(const[key,val] of Object.entries(APP_CONFIG)) if(norm(key)===k) return val;
+  return null;
+}
 
-  // Cloner sm-grid vers desktop-icons dès que kernel.js le peuple
-  new MutationObserver(()=>{
-    const sg = document.getElementById('sm-grid');
-    const di = document.getElementById('desktop-icons');
-    if(!sg||!di||sg.children.length===0||di.children.length>0) return;
-    Array.from(sg.children).forEach(child=>{
-      const btn = document.createElement('button');
-      btn.className = 'desk-icon';
-      const rawLabel = child.dataset.label || child.textContent.replace(/\p{Emoji}/gu, '').trim();
-      const em = child.dataset.icon || emoji(rawLabel) || '📦';
-      btn.innerHTML = `<span class="icon-emoji">${em}</span><span class="icon-label">${rawLabel}</span>`;
-      btn.addEventListener('click', ()=>{ child.click(); });
-      btn.addEventListener('mouseenter', ()=>showToast('Ouvrir : '+rawLabel));
-      di.appendChild(btn);
-    });
-  }).observe(document.body, { childList:true, subtree:true });
+/* ═══════════════════════════════════════
+   HORLOGE WIDGET
+═══════════════════════════════════════ */
+const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+const MOIS  = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('wt-h').textContent = h;
+  document.getElementById('wt-m').textContent = m;
+  document.getElementById('widget-date').textContent =
+    `${JOURS[now.getDay()]} ${now.getDate()} ${MOIS[now.getMonth()]}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+const toast = document.getElementById('help-toast');
+let tt;
+function showToast(msg){
+  clearTimeout(tt);
+  toast.textContent = msg;
+  toast.classList.add('show');
+  tt = setTimeout(()=> toast.classList.remove('show'), 2000);
+}
+
+/* ═══════════════════════════════════════
+   MENU POWER
+═══════════════════════════════════════ */
+const powerBtn  = document.getElementById('power-btn');
+const powerMenu = document.getElementById('power-menu');
+
+powerBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  powerMenu.hidden = !powerMenu.hidden;
+});
+document.addEventListener('click', () => { powerMenu.hidden = true; });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') powerMenu.hidden = true; });
+powerMenu.addEventListener('click', e => e.stopPropagation());
+
+document.getElementById('pm-shutdown').addEventListener('click', () => {
+  powerMenu.hidden = true;
+  if(window.API?.app?.quit) window.API.app.quit();
+  else document.getElementById('sm-quit')?.click();
+});
+document.getElementById('pm-restart').addEventListener('click', () => {
+  powerMenu.hidden = true;
+  showToast('Redémarrage en cours…');
+  if(window.API?.app?.relaunch) {
+    setTimeout(() => window.API.app.relaunch(), 800);
+  } else {
+    setTimeout(() => location.reload(), 800);
+  }
+});
+document.getElementById('pm-lock').addEventListener('click', () => {
+  powerMenu.hidden = true;
+  if(typeof NexOS !== 'undefined' && NexOS.lock) NexOS.lock();
+  else showToast('🔒 Écran verrouillé');
+});
+
+/* ═══════════════════════════════════════
+   BRIDGE DOCK : tb-apps → tb-apps-dock
+   kernel.js peuple #tb-apps, on mirror dans le dock
+═══════════════════════════════════════ */
+const dock = document.getElementById('tb-apps-dock');
+
+function syncDock() {
+  const src = document.getElementById('tb-apps');
+  if(!src) return;
+  // Synchronise le contenu du dock avec tb-apps
+  dock.innerHTML = '';
+  const btns = Array.from(src.querySelectorAll('.tb-app-btn'));
+  btns.forEach(srcBtn => {
+    const btn = srcBtn.cloneNode(true);
+    // Copier les event listeners n'est pas possible via cloneNode
+    // On reproduit le comportement : clic = focus sur la fenêtre correspondante
+    btn.addEventListener('click', () => srcBtn.click());
+    dock.appendChild(btn);
+  });
+  dock.classList.toggle('has-apps', btns.length > 0);
+}
+
+// Observer les changements dans tb-apps (kernel/taskbar.js y injecte des boutons)
+new MutationObserver(syncDock).observe(
+  document.getElementById('tb-apps') || document.body,
+  { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] }
+);
+
+/* ═══════════════════════════════════════
+   BRIDGE DESKTOP ICONS : sm-grid → #desktop-icons
+═══════════════════════════════════════ */
+let iconsBuilt = false;
+new MutationObserver(() => {
+  if(iconsBuilt) return;
+  const sg = document.getElementById('sm-grid');
+  const di = document.getElementById('desktop-icons');
+  if(!sg || !di || sg.children.length === 0) return;
+  iconsBuilt = true; // n'exécuter qu'une fois
+
+  Array.from(sg.children).forEach((child, i) => {
+    // Nettoyer le label : retirer emojis et espaces
+    const rawLabel = (child.dataset.label || child.textContent)
+      .replace(/\p{Emoji_Presentation}/gu, '')
+      .replace(/\p{Emoji}\uFE0F/gu, '')
+      .trim();
+
+    const config  = getConfig(rawLabel);
+    const colors  = config ? config.color : ['#c8f0e0','#3ecf8e'];
+    const desc    = config ? config.desc  : "Ouvrir l'application";
+    const svgName = config ? config.svg   : null;
+
+    const btn = document.createElement('button');
+    btn.className = 'desk-icon';
+    btn.style.animationDelay = (i * 40) + 'ms';
+    btn.setAttribute('aria-label', `${rawLabel} — ${desc}`);
+
+    const iconContent = svgName
+      ? `<img src="assets/icons/${svgName}.svg" alt="" width="48" height="48" draggable="false"/>`
+      : `<span style="font-size:2rem;line-height:1">${child.dataset.icon || '📦'}</span>`;
+
+    btn.innerHTML = `
+      <div class="icon-tile" style="background:linear-gradient(145deg,${colors[0]},${colors[1]})">
+        ${iconContent}
+      </div>
+      <span class="icon-label">${rawLabel}</span>
+      <div class="icon-snack" aria-hidden="true">${desc}</div>
+    `;
+
+    btn.addEventListener('click', () => child.click());
+    di.appendChild(btn);
+  });
+}).observe(document.body, { childList: true, subtree: true });
 </script>
 </body>
 </html>

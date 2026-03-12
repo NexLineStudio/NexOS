@@ -24,4 +24,8 @@ contextBridge.exposeInMainWorld('API', {
     close:     () => ipcRenderer.send('win:close'),
     onState:   cb => ipcRenderer.on('win:state', (_, v) => cb(v)),
   },
+  app: {
+    quit:     () => ipcRenderer.send('app:quit'),
+    relaunch: () => ipcRenderer.send('app:relaunch'),
+  },
 });

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 76">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#b3d9ff"/>
+      <stop offset="100%" stop-color="#4fa3e8"/>
+    </linearGradient>
+  </defs>
+  <rect width="76" height="76" rx="22" fill="url(#g)"/>
+  <!-- Soleil -->
+  <circle cx="32" cy="32" r="9" fill="none" stroke="white" stroke-width="2.5"/>
+  <!-- Rayons -->
+  <line x1="32" y1="18" x2="32" y2="21" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="41.5" y1="21.5" x2="39.4" y2="23.6" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="45" y1="32" x2="42" y2="32" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="22.5" y1="21.5" x2="24.6" y2="23.6" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="19" y1="32" x2="22" y2="32" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Nuage -->
+  <path d="M28 48 Q28 42 34 42 Q36 38 41 39 Q46 39 47 43 Q51 43 51 47 Q51 51 47 51 L30 51 Q28 51 28 48 Z" fill="none" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
+</svg>

@@ -24,7 +24,13 @@
     "productName": "NexOS",
 
     "win": {
-      "target": "portable"
+      "target": "nsis"
+    },
+
+    "publish": {
+      "provider": "github",
+      "owner": "NexLineStudio",
+      "repo": "NexOS"
     },
 
     "directories": {

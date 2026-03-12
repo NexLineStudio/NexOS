@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 76">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd67a"/>
+      <stop offset="100%" stop-color="#f0a500"/>
+    </linearGradient>
+  </defs>
+  <rect width="76" height="76" rx="22" fill="url(#g)"/>
+  <!-- Dossier -->
+  <path d="M20 32 C20 29 22 27 25 27 L33 27 C34.5 27 35.5 27.8 36.5 29 L38 31 L51 31 C54 31 56 33 56 36 L56 50 C56 53 54 55 51 55 L25 55 C22 55 20 53 20 50 Z" fill="none" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Languette -->
+  <path d="M20 36 L56 36" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+</svg>

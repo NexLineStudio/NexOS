@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 76">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#66e8be"/>
+      <stop offset="100%" stop-color="#00a878"/>
+    </linearGradient>
+  </defs>
+  <rect width="76" height="76" rx="22" fill="url(#g)"/>
+  <!-- Calendrier boîte -->
+  <rect x="18" y="22" width="40" height="36" rx="7" fill="none" stroke="white" stroke-width="2.5"/>
+  <!-- Barre haut -->
+  <rect x="18" y="22" width="40" height="13" rx="7" fill="white" opacity="0.2"/>
+  <line x1="18" y1="35" x2="58" y2="35" stroke="white" stroke-width="1.5" opacity="0.4"/>
+  <!-- Anneaux -->
+  <line x1="28" y1="18" x2="28" y2="26" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="48" y1="18" x2="48" y2="26" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Chiffre du jour -->
+  <text x="38" y="51" text-anchor="middle" font-family="system-ui" font-size="16" font-weight="800" fill="white">24</text>
+</svg>

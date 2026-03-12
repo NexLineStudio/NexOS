@@ -1,123 +1,197 @@
-# NexOS — Electron
+# NexOS
 
-OS desktop en HTML/CSS/JS via Electron. Accès réel aux fichiers + navigateur intégré.
+> OS desktop complet tournant sur Electron — HTML/CSS/JS vanilla, zéro framework.  
+> Accès réel au système de fichiers, navigateur intégré, et une suite d'apps natives.
+
+![Version](https://img.shields.io/badge/version-0.2-3ecf8e?style=flat-square) ![Electron](https://img.shields.io/badge/Electron-Node.js-5b8fff?style=flat-square) ![Stack](https://img.shields.io/badge/stack-HTML%20%2F%20CSS%20%2F%20JS-orange?style=flat-square)
+
+---
+
+## Table des matières
+
+- [Pour les utilisateurs](#-pour-les-utilisateurs)
+  - [Installation](#installation)
+  - [Apps incluses](#apps-incluses)
+- [Pour les développeurs](#-pour-les-développeurs)
+  - [Architecture](#architecture)
+  - [API système](#api-système)
+  - [Ajouter une app](#ajouter-une-app)
+
+---
+
+# 👤 Pour les utilisateurs
 
 ## Installation
 
+### ✅ Méthode recommandée — Exécutable (aucun prérequis)
+
+Télécharge directement le `.exe` depuis les [**Releases GitHub**](../../releases) et lance-le. C'est tout.
+
+> Pas besoin de Node.js, npm, ou quoi que ce soit d'autre.
+
+---
+
+### 🛠️ Méthode manuelle — Depuis les sources
+
+> **Prérequis :** Node.js installé sur ta machine.
+
 ```bash
-# 1. Extrais le zip dans un dossier
-# 2. Ouvre un terminal dans ce dossier
+# 1. Extraire l'archive dans un dossier
+# 2. Ouvrir un terminal dans ce dossier
+
 cd NexOS-electron
 
-# 3. Installe Electron (une seule fois, ~150Mo)
+# 3. Installer les dépendances (une seule fois, ~150 Mo)
 npm install
 
-# 4. Lance NexOS
+# 4. Lancer NexOS
 npm start
 ```
 
-## Structure
+---
+
+## Apps incluses
+
+NexOS embarque **12 applications** nativement :
+
+| Icône | App | Description |
+|-------|-----|-------------|
+| 🌐 | **Navigateur** | Navigateur web complet avec WebView Electron, historique, 5 bookmarks |
+| 📁 | **Explorateur de fichiers** | Navigation dans tes vrais fichiers, menu contextuel, favoris sidebar |
+| 📝 | **Bloc-notes** | Éditeur texte avec numéros de ligne, lecture/écriture de fichiers réels, Ctrl+S |
+| 🧮 | **Calculatrice** | Opérations complètes avec mémoire, support clavier, affichage de l'expression |
+| 🌤️ | **Météo** | Données Open-Meteo (sans clé API), géocodage par ville, prévisions 5 jours |
+| 🕐 | **Horloge** | Horloge digitale + analogique, chronomètre avec tours, réveil |
+| 🖼️ | **Galerie** | Visionneuse d'images locale avec vignettes et navigation clavier |
+| 🎵 | **Lecteur audio** | Supporte mp3 / wav / ogg / flac, liste de lecture, barre de progression |
+| 📅 | **Calendrier** | Vue mensuelle, ajout et suppression d'événements par jour |
+| 🎨 | **Dessin** | Paint complet — crayon, formes, gomme, flood fill, palette, annulation, export PNG |
+| 💻 | **Terminal** | Shell NexOS avec commandes built-in et historique ↑↓ |
+| ⚙️ | **Paramètres** | Thème (6 couleurs d'accent), accessibilité, infos système |
+
+---
+
+# 🛠️ Pour les développeurs
+
+## Architecture
+
 ```
 NexOS-electron/
-├── main.js          ← Process Electron principal (IPC filesystem, fenêtre)
-├── preload.js       ← Bridge sécurisé → expose window.NexAPI au renderer
-├── index.html       ← Shell du bureau
+│
+├── main.js          ← Process principal Electron (fenêtre, IPC, APIs système)
+├── preload.js       ← Bridge contextIsolation → expose window.NexAPI au renderer
+├── index.html       ← Shell du bureau (boot, titlebar, bureau, taskbar, start menu)
+│
 ├── core/
-│   ├── kernel.js          EventBus + ProcessManager
-│   ├── window-manager.js  Fenêtres drag/resize
-│   ├── taskbar.js         Taskbar + AppLauncher + StartMenu
-│   ├── boot.js            Séquence de démarrage
-│   ├── design-system.css  Variables + tokens
-│   ├── desktop.css        Bureau + titlebar + taskbar
-│   └── window.css         Fenêtres
+│   ├── kernel.js          → EventBus + ProcessManager (singleton K)
+│   ├── wm.js              → Window Manager — drag, resize, focus (singleton WM)
+│   ├── taskbar.js         → Taskbar, Clock, StartMenu, registre d'apps (singleton App)
+│   ├── boot.js            → Séquence de démarrage animée
+│   └── style.css          → Toute la CSS (variables, composants, fenêtres)
+│
 └── apps/
-    ├── browser/     Navigateur web intégré (webview Electron)
-    ├── explorer/    Explorateur fichiers PC (accès réel)
-    ├── editor/      Éditeur texte (open/save fichiers réels)
-    ├── terminal/    Shell NexOS (commandes built-in)
-    ├── taskmanager/ Processus NexOS
-    └── settings/    Thème, accessibilité, infos système
+    ├── navigateur.js
+    ├── fichiers.js
+    ├── bloc-notes.js
+    ├── calculatrice.js
+    ├── meteo.js
+    ├── horloge.js
+    ├── galerie.js
+    ├── musique.js
+    ├── calendrier.js
+    ├── dessin.js
+    ├── terminal.js
+    └── parametres.js
 ```
 
-## Ajouter une app
+**Règle d'or :** chaque app est un fichier JS autonome qui ne dépend que de `App`, `WM` et `window.NexAPI`.
+
+---
+
+## API système
+
+Toutes les APIs sont exposées via `window.NexAPI` (bridge `preload.js` → `main.js`).
+
+### `NexAPI.fs` — Filesystem
+
 ```js
-// apps/monappp/monappp.js
+await NexAPI.fs.readdir(path)           // Liste le contenu d'un dossier
+await NexAPI.fs.readfile(path)          // Lit un fichier (retourne string)
+await NexAPI.fs.writefile(path, content)// Écrit dans un fichier
+await NexAPI.fs.mkdir(path)             // Crée un dossier
+await NexAPI.fs.delete(path)            // Supprime fichier ou dossier
+await NexAPI.fs.rename(oldPath, newPath)// Renomme / déplace
+await NexAPI.fs.open(path)              // Ouvre avec l'app système native
+await NexAPI.fs.pickdir()               // Dialog : choisir un dossier
+await NexAPI.fs.pickfile(filters)       // Dialog : choisir un fichier
+await NexAPI.fs.savedialog(filename)    // Dialog : enregistrer sous
+```
+
+### `NexAPI.sys` — Système
+
+```js
+await NexAPI.sys.info()
+// → { hostname, username, platform, ram, cpu, ... }
+```
+
+### `NexAPI.win` — Contrôle de la fenêtre
+
+```js
+NexAPI.win.minimize()
+NexAPI.win.maximize()
+NexAPI.win.close()
+```
+
+---
+
+## Ajouter une app
+
+### 1. Créer le fichier `apps/monappp.js`
+
+```js
 (() => {
-  AppLauncher.register('monappp', () => {
-    WindowManager.open({
-      appId: 'monappp', title: 'Mon App', icon: '🚀',
-      width: 600, height: 400,
+  App.reg('monappp', () => {
+    WM.open({
+      appId: 'monappp',
+      title: 'Mon App',
+      icon: '🚀',
+      w: 600,
+      h: 400,
       render(el) {
-        el.innerHTML = '<p style="padding:20px">Bonjour NexOS</p>';
+        el.innerHTML = `<p style="padding:20px">Bonjour NexOS</p>`;
       }
     });
   });
 })();
 ```
-Puis dans `index.html` : ajouter `<script src="apps/monappp/monappp.js">` + icône bureau + entrée start menu.
 
-## API système disponible dans les apps
-```js
-// Filesystem
-await window.NexAPI.fs.readdir(path)      // liste un dossier
-await window.NexAPI.fs.readfile(path)     // lit un fichier
-await window.NexAPI.fs.writefile(path, content)
-await window.NexAPI.fs.mkdir(path)
-await window.NexAPI.fs.delete(path)
-await window.NexAPI.fs.rename(old, new)
-await window.NexAPI.fs.open(path)         // ouvre avec l'app système
-await window.NexAPI.fs.pickdir()          // dialog choisir dossier
-await window.NexAPI.fs.pickfile(filters)  // dialog choisir fichier
-await window.NexAPI.fs.savedialog(name)   // dialog enregistrer sous
+### 2. Charger le script dans `index.html`
 
-// Système
-await window.NexAPI.sys.info()  // hostname, username, RAM, CPU, etc.
+Ajouter **avant** `core/boot.js` :
 
-// Fenêtre
-window.NexAPI.win.minimize()
-window.NexAPI.win.maximize()
-window.NexAPI.win.close()
+```html
+<script src="apps/monappp.js"></script>
 ```
 
+### 3. Enregistrer l'app dans le Start Menu
 
-NexOS v0.2 — Architecture complète
-Application desktop construite avec Electron (Node.js). Zéro framework front-end, HTML/CSS/JS vanilla pur.
-Lancement : npm install puis npm start dans le dossier.
+Dans `core/taskbar.js`, ajouter une entrée dans le tableau `APPS` :
 
-Fichiers racine
+```js
+{ id: 'monappp', label: 'Mon App', icon: '🚀' }
+```
 
-main.js — Process principal Electron. Crée la fenêtre (sans barre native, frame: false). Expose toutes les APIs système via IPC : lecture/écriture fichiers, dialogs, suppression, renommage, ouverture avec l'app système, météo (Open-Meteo sans clé API), infos système (RAM, CPU, hostname...). Gère aussi les boutons minimize/maximize/close de la titlebar custom.
-preload.js — Bridge contextIsolation. Expose window.API au renderer avec 3 namespaces : API.fs (filesystem), API.sys (infos système), API.win (contrôle fenêtre), API.weather (météo).
-index.html — Shell HTML. Contient le boot screen, la titlebar custom, le bureau, la couche fenêtres (#win-layer), la taskbar (collée en bas via position:absolute;bottom:0), et le menu démarrer. Charge tous les scripts dans l'ordre : kernel → wm → taskbar → apps → boot.
+> Optionnel : ajouter une icône sur le bureau dans `index.html`.
 
+---
 
-core/
+## Conventions
 
-style.css — Toute la CSS en un seul fichier. Variables CSS (--mint #3ecf8e, --bg, --surface, --surface2, --surface3, --border, --text, --muted...). Police Nunito (Google Fonts). Styles du boot, titlebar, bureau, taskbar, menu démarrer, système de fenêtres (.win, .win-bar, .win-body, .win-resize, .win-dot), et composants réutilisables (.btn, .inp, .toolbar, .statusbar).
-kernel.js — Singleton K. EventBus (on/off/emit), ProcessManager (spawn/kill/list), gestion du focus et z-index des fenêtres, uptime, shutdown.
-wm.js — Singleton WM. WM.open({appId, title, icon, w, h, render}) crée une fenêtre draggable et redimensionnable. Une seule instance par appId. Gère close/minimize/restore/maximize. Le drag se fait via pointermove sur la barre de titre. Le resize via le coin bas-droite.
-taskbar.js — Singleton Taskbar (écoute les events kernel pour se mettre à jour), Clock (horloge bas droite), StartMenu (grille 3 colonnes avec les 12 apps), App (registre d'apps : App.reg(id, fn) et App.open(id)).
-boot.js — Séquence de démarrage animée (barre de progression, messages). Initialise Taskbar, Clock, StartMenu, K.boot(), branche les boutons titlebar sur API.win.
+- Une seule instance par `appId` — `WM.open()` gère ça automatiquement.
+- Toute logique métier reste dans le `render(el)` de l'app.
+- Pas de framework, pas de bundler — JS vanilla uniquement.
+- Pour communiquer entre apps, utiliser l'EventBus : `K.emit('event', data)` / `K.on('event', cb)`.
 
+---
 
-apps/ — Chaque app est un fichier JS autonome qui appelle App.reg('id', () => WM.open({...})). La fonction render(el, pid) reçoit le div.win-body et le remplit.
-
-navigateur.js — Balise <webview> Electron. Barre d'adresse, boutons précédent/suivant/reload, barre de progression de chargement, 5 bookmarks (Google, YouTube, GitHub, NexLine, Wikipedia).
-fichiers.js — Explorateur fichiers complet. Sidebar avec favoris (Home, Bureau, Télécharg., Documents, Images, Musique, disques C/D/E). Navigation avec historique (boutons ◀▶), bouton parent, raccourci home. Liste triée (dossiers d'abord). Double-clic pour ouvrir. Menu contextuel clic droit (ouvrir, ouvrir dans bloc-notes, renommer, supprimer). Affichage taille des fichiers.
-bloc-notes.js — Éditeur texte. Numéros de ligne synchronisés au scroll. Lecture/écriture vrais fichiers via API.fs. Ctrl+S pour sauvegarder. Écoute l'event editor:open pour être ouvert depuis l'explorateur.
-calculatrice.js — Calculatrice complète avec mémoire d'opération, affichage de l'expression, support clavier, opérateurs ÷ × − +, touches %, ±, C.
-meteo.js — Météo via Open-Meteo (gratuit, sans clé). Geocoding par nom de ville. Température actuelle, conditions, vent, humidité. Prévisions 5 jours. Codes WMO traduits en français avec emojis.
-horloge.js — 3 onglets : Horloge (digitale + analogique canvas), Chronomètre (start/pause/reset/tours), Réveil (input time + setInterval).
-galerie.js — Ouvre des images via dialog (API.fs.pickimages). Affichage principal + colonne de vignettes. Navigation ◀▶ + touches clavier. Chemins en file:// pour accès local.
-musique.js — Lecteur audio HTML5 (new Audio()). Ouvre des fichiers mp3/wav/ogg/flac. Barre de progression seekable, volume, liste de lecture, navigation entre pistes.
-calendrier.js — Calendrier mensuel avec navigation mois. Grille 7 colonnes (lundi→dimanche). Mise en évidence du jour actuel. Ajout/suppression d'événements par jour (stockés en mémoire dans eventsStore).
-dessin.js — Paint complet. Canvas redimensionnable via ResizeObserver. Outils : crayon, pinceau, rectangle, cercle, ligne, gomme, remplissage (flood fill). Palette 16 couleurs + color picker custom. Taille de pinceau via slider. Annuler (historique 30 étapes). Sauvegarder en PNG.
-terminal.js — Shell NexOS. Commandes : help, clear, echo, version, date, uptime, ps, sysinfo. Historique ↑↓.
-parametres.js — 3 onglets : Apparence (6 couleurs d'accent, taille de police), Accessibilité (réduire animations, contraste élevé), Système (grille d'infos issues de API.sys.info()).
-
-
-Conventions à respecter pour ajouter une app :
-
-Créer apps/monapp.js avec App.reg('monapp', () => WM.open({appId:'monapp', title:'...', icon:'emoji', w:700, h:480, render(el){ /* remplir el */ }}))
-Ajouter <script src="apps/monapp.js"> dans index.html avant core/boot.js
-Ajouter l'app dans le tableau APPS de StartMenu dans core/taskbar.js
+*NexOS v0.2 — NexLine Studio*

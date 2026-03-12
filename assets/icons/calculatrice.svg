@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 76">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c8b8fe"/>
+      <stop offset="100%" stop-color="#8b6cf7"/>
+    </linearGradient>
+  </defs>
+  <rect width="76" height="76" rx="22" fill="url(#g)"/>
+  <!-- Boîtier -->
+  <rect x="20" y="18" width="36" height="42" rx="7" fill="none" stroke="white" stroke-width="2.5"/>
+  <!-- Écran -->
+  <rect x="25" y="23" width="26" height="10" rx="3" fill="white" opacity="0.25"/>
+  <!-- Touches grille 3x3 -->
+  <circle cx="29" cy="43" r="3" fill="white"/>
+  <circle cx="38" cy="43" r="3" fill="white"/>
+  <circle cx="47" cy="43" r="3" fill="white"/>
+  <circle cx="29" cy="52" r="3" fill="white"/>
+  <circle cx="38" cy="52" r="3" fill="white"/>
+  <!-- Touche égal -->
+  <rect x="43" y="49" width="8" height="3" rx="1.5" fill="white"/>
+  <rect x="43" y="54" width="8" height="3" rx="1.5" fill="white"/>
+</svg>

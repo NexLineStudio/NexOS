@@ -20,56 +20,88 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       webviewTag: true,
+      /* 🚀 LA LIGNE MAGIQUE POUR LE SON :
+         Désactive la restriction de "geste utilisateur" pour l'audio dans Electron.
+      */
+      autoplayPolicy: 'no-user-gesture-required', 
     },
   });
 
   mainWindow.loadFile('index.html');
 
-  // Envoi état fenêtre
+  // Gestion des états de la fenêtre
   mainWindow.on('maximize',   () => mainWindow.webContents.send('win:state', 'maximized'));
   mainWindow.on('unmaximize', () => mainWindow.webContents.send('win:state', 'normal'));
 
-  // ── Blocage touches système ───────────────────────────────
+  // Blocage des touches systèmes (Alt+Tab, F4, etc.) pour le mode Kiosk
   mainWindow.webContents.on('before-input-event', (event, input) => {
-    const { control, alt, shift, meta } = input;
+    const { alt, meta, control } = input;
     const key = input.key.toLowerCase();
-
-    // Bloquer: Win, Ctrl+Esc, Alt+Tab, Win+Tab, Escape, Alt+F4
     if (
-      meta ||                // Win seul
+      meta ||
       (alt && key === 'tab') ||
       (meta && key === 'tab') ||
       key === 'escape' ||
       (alt && key === 'f4') ||
-      (control && key === 'escape') // Ctrl+Esc
+      (control && key === 'escape')
     ) {
       event.preventDefault();
     }
   });
 }
 
+// Initialisation de l'application
 app.whenReady().then(() => {
   createWindow();
-
   autoUpdater.checkForUpdatesAndNotify();
 });
 
+// Gestion des mises à jour
 autoUpdater.on("update-downloaded", () => {
   autoUpdater.quitAndInstall();
 });
-app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 
-// ── Fenêtre ───────────────────────────────────────────────
-ipcMain.on('win:minimize', e => BrowserWindow.fromWebContents(e.sender).minimize());
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});
+
+// ── Gestion de l'App (IPC) ────────────────────────────────
+ipcMain.on('app:quit', () => {
+  if (mainWindow) {
+    mainWindow.setKiosk(false);
+    mainWindow.setAlwaysOnTop(false);
+  }
+  app.quit();
+});
+
+ipcMain.on('app:relaunch', () => {
+  if (mainWindow) {
+    mainWindow.setKiosk(false);
+    mainWindow.setAlwaysOnTop(false);
+  }
+  app.relaunch();
+  app.quit();
+});
+
+// ── Gestion des Fenêtres ──────────────────────────────────
+ipcMain.on('win:minimize', e => {
+  const win = BrowserWindow.fromWebContents(e.sender);
+  if (win) win.minimize();
+});
+
 ipcMain.on('win:maximize', e => {
-  const w = BrowserWindow.fromWebContents(e.sender);
-  w.isMaximized() ? w.unmaximize() : w.maximize();
-});
-ipcMain.on('win:close', e => {
-  BrowserWindow.fromWebContents(e.sender).close();
+  const win = BrowserWindow.fromWebContents(e.sender);
+  if (win) {
+    win.isMaximized() ? win.unmaximize() : win.maximize();
+  }
 });
 
-// ── Filesystem ───────────────────────────────────────────
+ipcMain.on('win:close', e => {
+  const win = BrowserWindow.fromWebContents(e.sender);
+  if (win) win.close();
+});
+
+// ── Système de fichiers (FS) ──────────────────────────────
 ipcMain.handle('fs:readdir', (_, p) => {
   try {
     return fs.readdirSync(p, { withFileTypes: true }).map(e => ({
@@ -85,7 +117,7 @@ ipcMain.handle('fs:readdir', (_, p) => {
 ipcMain.handle('fs:readfile', (_, p) => {
   try {
     const stat = fs.statSync(p);
-    if (stat.size > 5 * 1024 * 1024) return { error: 'Fichier trop grand' };
+    if (stat.size > 5 * 1024 * 1024) return { error: 'Fichier trop grand (>5Mo)' };
     return { content: fs.readFileSync(p, 'utf8') };
   } catch (err) { return { error: err.message }; }
 });
@@ -95,26 +127,31 @@ ipcMain.handle('fs:writefile', (_, p, c) => {
   catch (err) { return { error: err.message }; }
 });
 
-ipcMain.handle('fs:mkdir', (_, p) => { try { fs.mkdirSync(p, { recursive: true }); return { ok: true }; } catch (e) { return { error: e.message }; } });
+ipcMain.handle('fs:mkdir',  (_, p) => { try { fs.mkdirSync(p, { recursive: true }); return { ok: true }; } catch (e) { return { error: e.message }; } });
 ipcMain.handle('fs:delete', (_, p) => { try { fs.rmSync(p, { recursive: true, force: true }); return { ok: true }; } catch (e) { return { error: e.message }; } });
 ipcMain.handle('fs:rename', (_, o, n) => { try { fs.renameSync(o, n); return { ok: true }; } catch (e) { return { error: e.message }; } });
-ipcMain.handle('fs:open', (_, p) => shell.openPath(p).then(() => ({ ok: true })));
-ipcMain.handle('fs:pickdir', () => dialog.showOpenDialog({ properties: ['openDirectory'] }).then(r => r.canceled ? null : r.filePaths[0]));
-ipcMain.handle('fs:pickfile', (_, f = []) => dialog.showOpenDialog({ properties: ['openFile'], filters: f }).then(r => r.canceled ? null : r.filePaths[0]));
-ipcMain.handle('fs:savedialog', (_, n = 'fichier.txt') => dialog.showSaveDialog({ defaultPath: n }).then(r => r.canceled ? null : r.filePath));
+ipcMain.handle('fs:open',   (_, p) => shell.openPath(p).then(() => ({ ok: true })));
+ipcMain.handle('fs:pickdir',  () => dialog.showOpenDialog({ properties: ['openDirectory'] }).then(r => r.canceled ? null : r.filePaths[0]));
+ipcMain.handle('fs:pickfile', (_, f=[]) => dialog.showOpenDialog({ properties: ['openFile'], filters: f }).then(r => r.canceled ? null : r.filePaths[0]));
+ipcMain.handle('fs:savedialog', (_, n='fichier.txt') => dialog.showSaveDialog({ defaultPath: n }).then(r => r.canceled ? null : r.filePath));
 ipcMain.handle('fs:pickimages', () => dialog.showOpenDialog({ properties: ['openFile','multiSelections'], filters:[{name:'Images', extensions:['jpg','jpeg','png','gif','webp','svg']}] }).then(r => r.canceled ? [] : r.filePaths));
 
-// ── Système ─────────────────────────────────────────────
+// ── Informations Système ──────────────────────────────────
 ipcMain.handle('sys:info', () => ({
-  platform: process.platform, arch: process.arch,
-  hostname: os.hostname(), username: os.userInfo().username,
+  platform: process.platform, 
+  arch: process.arch,
+  hostname: os.hostname(), 
+  username: os.userInfo().username,
   homedir: os.homedir(),
-  totalMem: os.totalmem(), freeMem: os.freemem(),
-  cpus: os.cpus().length, uptime: os.uptime(),
-  nodeVer: process.version, electronVer: process.versions.electron,
+  totalMem: os.totalmem(), 
+  freeMem: os.freemem(),
+  cpus: os.cpus().length, 
+  uptime: os.uptime(),
+  nodeVer: process.version, 
+  electronVer: process.versions.electron,
 }));
 
-// ── Météo ────────────────────────────────────────────────
+// ── API Météo ─────────────────────────────────────────────
 ipcMain.handle('weather:fetch', (_, lat, lon) => {
   return new Promise((resolve) => {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode,windspeed_10m,relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&forecast_days=5`;

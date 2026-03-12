@@ -1,4 +1,4 @@
-/* NexOS Taskbar + AppLauncher */
+/* NexOS Taskbar + AppLauncher CORRIGÉ */
 
 // ── AppLauncher ──────────────────────────────────────────────────
 const App = {
@@ -10,20 +10,25 @@ const App = {
 // ── Taskbar ──────────────────────────────────────────────────────
 const Taskbar = {
   init() {
-    K.on('spawn', () => this._render());
-    K.on('kill',  () => this._render());
-    K.on('focus', () => this._render());
+    // On vérifie que K existe pour éviter les erreurs au boot
+    if (typeof K !== 'undefined') {
+      K.on('spawn', () => this._render());
+      K.on('kill',  () => this._render());
+      K.on('focus', () => this._render());
+    }
   },
   _render() {
     const el = document.getElementById('tb-apps');
+    if (!el) return; // Sécurité
     el.innerHTML = '';
     K.list().forEach(p => {
       const btn = document.createElement('button');
-      btn.className = 'tb-app' + (K.focusPid===p.pid && !p.el.classList.contains('mini') ? ' on' : '');
+      // On utilise ta classe CSS 'tb-app-btn' pour correspondre à ton index.html
+      btn.className = 'tb-app-btn' + (K.focusPid === p.pid && !p.el.classList.contains('mini') ? ' active' : '');
       btn.textContent = p.title;
       btn.onclick = () => {
-        if(p.el.classList.contains('mini')) WM.restore(p.pid);
-        else if(K.focusPid===p.pid) WM.minimize(p.pid);
+        if (p.el.classList.contains('mini')) WM.restore(p.pid);
+        else if (K.focusPid === p.pid) WM.minimize(p.pid);
         else K.focus(p.pid);
       };
       el.appendChild(btn);
@@ -31,16 +36,17 @@ const Taskbar = {
   }
 };
 
-// ── Horloge ──────────────────────────────────────────────────────
+// ── Horloge (Cachée car tu as le widget, mais on la garde pour la compatibilité) ──
 const Clock = {
   init() {
     const el = document.getElementById('tb-clock');
+    if (!el) return; 
     const tick = () => el.textContent = new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
     tick(); setInterval(tick, 10000);
   }
 };
 
-// ── Menu démarrer ─────────────────────────────────────────────────
+// ── Menu démarrer (Adapté pour ton #desktop-icons) ────────────────
 const StartMenu = {
   APPS: [
     { id:'navigateur', icon:'🌐', label:'Navigateur' },
@@ -57,31 +63,32 @@ const StartMenu = {
     { id:'parametres', icon:'⚙', label:'Paramètres' },
   ],
   init() {
-    const btn  = document.getElementById('start-btn');
     const menu = document.getElementById('start-menu');
     const grid = document.getElementById('sm-grid');
+    if (!grid) return;
 
-    // Remplit la grille
+    // Remplit la grille (utilisée par ton script dans index.html pour créer les icônes du bureau)
+    grid.innerHTML = '';
     this.APPS.forEach(a => {
       const b = document.createElement('button');
       b.className = 'sm-item';
       b.dataset.label = a.label;
       b.dataset.icon = a.icon;
       b.innerHTML = `<span class="sm-icon">${a.icon}</span>${a.label}`;
-      b.onclick = () => { App.open(a.id); menu.hidden=true; btn.classList.remove('open'); };
+      b.onclick = () => { 
+        App.open(a.id); 
+        if(menu) menu.hidden = true; 
+      };
       grid.appendChild(b);
     });
 
-    // Double-clic bureau = ouvre aussi les apps (icônes non affichées ici, tout passe par le menu)
-    btn.onclick = e => {
-      e.stopPropagation();
-      const open = !menu.hidden;
-      menu.hidden = open;
-      btn.classList.toggle('open', !open);
-    };
-    document.addEventListener('click', () => { menu.hidden=true; btn.classList.remove('open'); });
-    menu.addEventListener('click', e => e.stopPropagation());
-
-    document.getElementById('sm-quit').onclick = () => K.shutdown();
+    // Sécurité pour le bouton quitter s'il existe
+    const quitBtn = document.getElementById('sm-quit');
+    if (quitBtn) {
+      quitBtn.onclick = () => {
+        if (typeof K !== 'undefined' && K.shutdown) K.shutdown();
+        else if (window.API?.app?.quit) window.API.app.quit();
+      };
+    }
   }
 };

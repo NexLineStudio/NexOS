@@ -36,9 +36,9 @@ const WM = (() => {
     render(body, pid);
 
     win.addEventListener('pointerdown', () => K.focus(pid), { capture: true });
-    win.querySelector('.close').onclick = () => close(pid);
-    win.querySelector('.minimize').onclick = () => minimize(pid);
-    win.querySelector('.maximize').onclick = () => maximize(win);
+win.querySelector('.close').onclick = () => close(pid);
+win.querySelector('.minimize').onclick = () => minimize(pid);
+win.querySelector('.maximize').onclick = () => maximize(win);
 
     _drag(win.querySelector('.win-bar'), win);
     _resize(win.querySelector('.win-resize'), win);

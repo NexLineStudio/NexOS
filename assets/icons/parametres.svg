@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 76">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c0cad4"/>
+      <stop offset="100%" stop-color="#607080"/>
+    </linearGradient>
+  </defs>
+  <rect width="76" height="76" rx="22" fill="url(#g)"/>
+  <!-- Engrenage -->
+  <circle cx="38" cy="38" r="8" fill="none" stroke="white" stroke-width="2.5"/>
+  <circle cx="38" cy="38" r="3" fill="white"/>
+  <!-- Dents -->
+  <rect x="36" y="18" width="4" height="7" rx="2" fill="white"/>
+  <rect x="36" y="51" width="4" height="7" rx="2" fill="white"/>
+  <rect x="18" y="36" width="7" height="4" rx="2" fill="white"/>
+  <rect x="51" y="36" width="7" height="4" rx="2" fill="white"/>
+  <rect x="22.5" y="22.5" width="4" height="7" rx="2" fill="white" transform="rotate(45 24.5 26)"/>
+  <rect x="22.5" y="47" width="4" height="7" rx="2" fill="white" transform="rotate(-45 24.5 50)"/>
+  <rect x="47" y="22.5" width="4" height="7" rx="2" fill="white" transform="rotate(-45 49 26)"/>
+  <rect x="47" y="47" width="4" height="7" rx="2" fill="white" transform="rotate(45 49 50)"/>
+</svg>

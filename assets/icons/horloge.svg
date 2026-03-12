@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 76">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffcce4"/>
+      <stop offset="100%" stop-color="#f0609a"/>
+    </linearGradient>
+  </defs>
+  <rect width="76" height="76" rx="22" fill="url(#g)"/>
+  <!-- Cadran -->
+  <circle cx="38" cy="38" r="18" fill="none" stroke="white" stroke-width="2.5"/>
+  <!-- Ticks heures -->
+  <line x1="38" y1="22" x2="38" y2="25" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <line x1="54" y1="38" x2="51" y2="38" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <line x1="38" y1="54" x2="38" y2="51" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <line x1="22" y1="38" x2="25" y2="38" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <!-- Aiguilles -->
+  <line x1="38" y1="38" x2="38" y2="27" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="38" y1="38" x2="46" y2="43" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <!-- Centre -->
+  <circle cx="38" cy="38" r="2.5" fill="white"/>
+</svg>

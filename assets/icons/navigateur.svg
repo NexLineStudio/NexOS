@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 76">
+  <rect width="76" height="76" rx="22" fill="url(#g)"/>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6ab4fc"/>
+      <stop offset="100%" stop-color="#3a8ef5"/>
+    </linearGradient>
+  </defs>
+  <!-- Globe -->
+  <circle cx="38" cy="38" r="16" fill="none" stroke="white" stroke-width="2.5"/>
+  <!-- Méridien vertical -->
+  <path d="M38 22 C32 28 32 48 38 54" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M38 22 C44 28 44 48 38 54" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Parallèles -->
+  <path d="M23 34 Q38 30 53 34" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M23 42 Q38 46 53 42" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+</svg>
